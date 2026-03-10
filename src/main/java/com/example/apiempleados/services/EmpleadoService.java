@@ -10,11 +10,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+
 @Service
 public class EmpleadoService {
 
     @Autowired
     private EmpleadoRepository empleadoRepository;
+
+    @Autowired
+    private StorageService storageService;
 
     public Page<Empleado> findAll(Pageable pageable) {
         return empleadoRepository.findAll(pageable);
@@ -44,10 +48,22 @@ public class EmpleadoService {
 
     public boolean delete(Long id) {
         return empleadoRepository.findById(id).map(empleado -> {
+            // Borrar la foto del disco si existe
+            if (empleado.getRutaFoto() != null) {
+                storageService.borrar(empleado.getRutaFoto());
+            }
             empleado.getProyectos().forEach(proyecto -> proyecto.getEmpleados().remove(empleado));
             empleado.getProyectos().clear();
             empleadoRepository.delete(empleado);
             return true;
         }).orElse(false);
+    }
+
+    // Actualiza el campo rutaFoto del empleado (usado por el controlador tras guardar/borrar la foto)
+    public Optional<Empleado> actualizarFoto(Long id, String rutaFoto) {
+        return empleadoRepository.findById(id).map(empleado -> {
+            empleado.setRutaFoto(rutaFoto);
+            return empleadoRepository.save(empleado);
+        });
     }
 }

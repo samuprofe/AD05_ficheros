@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 public class ProyectoService {
 
@@ -21,6 +22,9 @@ public class ProyectoService {
 
     @Autowired
     private EmpleadoRepository empleadoRepository;
+
+    @Autowired
+    private StorageService storageService;
 
     public Page<Proyecto> findAll(Pageable pageable) {
         return proyectoRepository.findAll(pageable);
@@ -47,9 +51,11 @@ public class ProyectoService {
 
     public boolean delete(Long id) {
         return proyectoRepository.findById(id).map(proyecto -> {
+            // Borrar del disco todos los PDFs adjuntos antes de eliminar el proyecto
+            proyecto.getFicheros().forEach(f -> storageService.borrar(f.getNombreFichero()));
             proyecto.getEmpleados().forEach(empleado -> empleado.getProyectos().remove(proyecto));
             proyecto.getEmpleados().clear();
-            proyectoRepository.delete(proyecto);
+            proyectoRepository.delete(proyecto);  // cascade ALL elimina FicheroProyecto de la BD
             return true;
         }).orElse(false);
     }
