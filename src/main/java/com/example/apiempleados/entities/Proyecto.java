@@ -12,6 +12,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -36,6 +37,10 @@ public class Proyecto {
     @Column(updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fechaCreacion;
+
+    // PDFs adjuntos al proyecto — cascade ALL: al borrar el proyecto se borran las entidades de BBDD
+    @OneToMany(mappedBy = "proyecto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FicheroProyecto> ficheros = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(   //Opcional para personalizar la tabla intermedia
