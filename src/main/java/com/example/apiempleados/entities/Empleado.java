@@ -33,6 +33,7 @@ public class Empleado {
     @NotBlank
     private String apellidos;
     private LocalDate fechaNacimiento;
+    private String rutaFoto;  // Nombre UUID del fichero de imagen en el servidor
 
     //Relación con Departamento
     @JsonIgnore //Para que Jackson no serielice esta propiedad a JSON y no se forme un bucle infinito
